@@ -112,5 +112,4 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
     Logic Diagram:
     
  ![](images/Custom_Serializer_Deserializer_apply.png)
-    
  
