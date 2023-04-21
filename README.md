@@ -111,5 +111,5 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
  ### Custom DomainSerdes using customed JsonSerializer and JsonDeserializer 
     Logic Diagram:
     
- ![](images/Custom_Serializer_Deserializer_apply.png)
+ ![](images/custom_serializer_deserializer_class_diagram.png)
  
