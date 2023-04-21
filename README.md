@@ -113,7 +113,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
     Class Diagram as below:
     
  
- <img src="images/custom_serializer_deserializer_class_diagram.png" width=70% height=70%>
+ <img src="images/custom_serializer_deserializer_class_diagram.png" width=60% height=60%>
  
   Above diagram shows how DmainSerdes class applied customed JsonSerializer and JsonDeserializer, those two classes applied JsonMapper reader 
   and writer, which writes java pojo to Json String/bytes and reads Json String/bytes to Java pojo no matter how complicated pojo is
