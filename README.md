@@ -1,7 +1,7 @@
 # spring-boot-kafka-json-stream
-## Overview 
-  Key points:
-  Demo:
+ 
+## Key points:
+  
   1. how to configure the spring-boot kafka json stream
   2. how to create JSON Stream Serde with custom JsonDeserializer
   3. how to consume the stream from source topic and obtain POJO , then check member method in POJO
