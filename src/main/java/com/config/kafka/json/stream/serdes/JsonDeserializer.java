@@ -24,7 +24,6 @@ public class JsonDeserializer<T> implements Deserializer<T> {
     public T deserialize(String topic, byte[] bytes) {
         if (bytes == null)
             return null;
-
         try {
             // convert bytes to UTF_8 String and then JsonMapper.readFromJson convert string to Java Object
             return JsonMapper.readFromJson(new String(bytes, StandardCharsets.UTF_8), destinationClass);

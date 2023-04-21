@@ -20,6 +20,5 @@ public class Domain {
     private String   CNAME;         //     "CNAME": null,
     private String   MX;        //    "MX": null,
     private String   TXT;        //     "TXT": null
-
     private List<Subdomain> sub_domain_list;  // test structured json
 }

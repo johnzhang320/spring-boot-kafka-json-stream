@@ -89,9 +89,7 @@ public class KafkaStreamsConfig {
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
         // For illustrative purposes we disable record caches.
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
-
         props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class.getName());
-
         return new KafkaStreamsConfiguration(props);
     }
 
