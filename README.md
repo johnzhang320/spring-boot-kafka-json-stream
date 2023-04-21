@@ -109,7 +109,26 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
       }
 
  ### Custom DomainSerdes using customed JsonSerializer and JsonDeserializer 
-    Logic Diagram:
+    Class Diagram as below:
     
  ![](images/custom_serializer_deserializer_class_diagram.png)
  
+  Above diagram shows how DmainSerdes class applied customed JsonSerializer and JsonDeserializer, those two classes applied JsonMapper reader 
+  and writer, which writes java pojo to Json String/bytes and reads Json String/bytes to Java pojo no matter how complicated pojo is
+  
+ ### KStream Processor
+      @Bean
+      public KStream<String, Domain> kStream(StreamsBuilder builder) {
+          KStream<String, Domain> kstream = builder.stream(Constants.WEB_DOMAIN, Consumed.with(STRING_SERDE, DomainSerdes.serdes()))
+                  .mapValues((domain)->{
+                      domain.setDead(randData());
+                      return domain;
+                  }).peek((key,domain)->log.info("Received Domain with key="+key+", domain="+domain));
+          KStream<String, Domain> active_domains= kstream.filter((key,domain)->domain.isDead());
+          KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
+          active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
+          inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
+          return null;
+      }
+   
+   
