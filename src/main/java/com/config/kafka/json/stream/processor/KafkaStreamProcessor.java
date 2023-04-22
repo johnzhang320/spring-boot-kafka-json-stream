@@ -37,21 +37,21 @@ public class KafkaStreamProcessor {
 
     @Bean
     public KStream<String, Domain> kStream(StreamsBuilder builder) {
+           KStream<String, Domain> kstream = builder.stream(Constants.WEB_DOMAIN,
+                        Consumed.with(STRING_SERDE, DomainSerdes.serdes()))
+                        .mapValues((domain)->{
+                            // search by google or facebook, normally no dead domains found, so set rond dead data to verify code
+                           domain.setDead(randData());
+                           return domain;
+                         }).peek((key,domain)->log.info("Received Domain with key="+key+", domain="+domain));
 
-        KStream<String, Domain> kstream = builder.stream(Constants.WEB_DOMAIN, Consumed.with(STRING_SERDE, DomainSerdes.serdes()))
-                .mapValues((domain)->{
-                    domain.setDead(randData());
-                    return domain;
-                }).peek((key,domain)->log.info("Received Domain with key="+key+", domain="+domain));
+          KStream<String, Domain> active_domains= kstream.filter((key,domain)->domain.isDead());
+          KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
 
+          active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
 
-        KStream<String, Domain> active_domains= kstream.filter((key,domain)->domain.isDead());
+          inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
 
-        KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
-
-        active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
-        inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
-
-        return null;
+          return null;
     }
 }
