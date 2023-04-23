@@ -129,7 +129,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
          private String category;
      }
 ### Domains Crawler Service
-   We use Spring Webflux client to access https://api.domainsdb.info/v1/domains/search?domain=companyname(note this website may be temporaryly
+   We use Spring Webflux client to access https://api.domainsdb.info/v1/domains/search?domain=companyname (note this website may be temporaryly
    unavailable return 503 error code), in order to increase the POJO Domain object
    one to many structure we add simulated data to SubDomain list 
          @Service
