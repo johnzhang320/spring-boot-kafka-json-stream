@@ -38,6 +38,65 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
      spring-kafka
      kafka-streams
      spring-boot-starter-webflux
+###  pom.xml as following     
+          ....
+         <parent>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-parent</artifactId>
+         <version>2.7.10</version>
+         <relativePath/> <!-- lookup parent from repository -->
+        </parent>
+        <groupId>com.config.kafka.json.stream</groupId>
+        <artifactId>spring-boot-kafka-json-stream</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <name>spring-boot-kafka-json-stream</name>
+        <description>spring-boot-kafka-json-stream</description>
+        <properties>
+         <java.version>17</java.version>
+        </properties>
+        <dependencies>
+         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+         </dependency>
+         <dependency>
+          <groupId>org.springframework.kafka</groupId>
+          <artifactId>spring-kafka</artifactId>
+          <version>2.8.11</version>
+         </dependency>
+         <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka-streams</artifactId>
+         </dependency>
+         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-webflux</artifactId>
+         </dependency>
+         <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+         <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka-clients</artifactId>
+          <version>3.1.2</version>
+         </dependency>
+         <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-stream</artifactId>
+          <version>3.2.3</version>
+         </dependency>
+         <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <optional>true</optional>
+         </dependency>
+         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-test</artifactId>
+          <scope>test</scope>
+         </dependency>
+        </dependencies>
+       .....
+
+
 ## Data Model
 ### Domain class
      @Data
