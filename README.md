@@ -69,6 +69,57 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
          private boolean active;
          private String category;
      }
+### Domains Crawler Service
+   We use Spring Webflux client to access https://api.domainsdb.info/v1/domains/search?domain=companyname(note this website may be temporaryly
+   unavailable return 503 error code), in order to increase the POJO Domain object
+   one to many structure we add simulated data to SubDomain list 
+         @Service
+         @Slf4j
+         public class DomainCrawlerService {
+             @Autowired
+             private KafkaTemplate<String, Domain> kafkaTemplate;
+
+             public List<Domain> crawl(String name) {
+                 Mono<DomainList> domainListMono = WebClient.create()
+                         .get()
+                         .uri("https://api.domainsdb.info/v1/domains/search?domain="+name+"&zone=com")
+                         .accept(MediaType.APPLICATION_JSON)
+                         .retrieve()
+                         .bodyToMono(DomainList.class);
+                 int i=0;
+                 List<Domain> list = new ArrayList<>();
+                 domainListMono.subscribe(domainList->{
+                     domainList.getDomains().forEach(domain->{
+                         List<Subdomain> subdomains = new ArrayList<>();
+                         //test structure json object consumer
+                         Subdomain subdomain1 = Subdomain.builder()
+                                 .domain("sub-hobby.com")
+                                 .active(false)
+                                 .category("entertainment")
+                                 .build();
+                         subdomains.add(subdomain1);
+                         Subdomain subdomain2 = Subdomain.builder()
+                                 .domain("sub-music.com")
+                                 .active(true)
+                                 .category("entertainment")
+                                 .build();
+                         subdomains.add(subdomain2);
+                         Subdomain subdomain3 = Subdomain.builder()
+                                 .domain("sub-football.com")
+                                 .active(true)
+                                 .category("sports")
+                                 .build();
+                         subdomains.add(subdomain3);
+                         domain.setSub_domain_list(subdomains);
+                         list.add(domain);
+                         kafkaTemplate.send(Constants.WEB_DOMAIN, domain);
+                         log.info("Sending Domain is :"+domain.getDomain());
+                     });
+                  });
+                  return list;
+              }
+   
+   
 ### Configure JSON Stream Objects producer and consumer are similar to my another repository 
 
    spring-boot-kafka-event-driven.kafka-json-code-producer-consumer, therefore I do not repeatedly explaination or check this repository
@@ -133,4 +184,4 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
           return null;
       }
    
-   
+ #### Test Result demo and analysis  
