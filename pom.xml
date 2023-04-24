@@ -74,5 +74,4 @@
 		</plugins>
 		<finalName>spring-boot-kafka-stream</finalName>
 	</build>
-
 </project>

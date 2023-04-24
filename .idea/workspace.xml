@@ -5,7 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e6d2930-801a-434b-87d0-4097cd684320" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/control/DomainCrawlerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/control/DomainCrawlerController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/mapper/JsonMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/mapper/JsonMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/processor/KafkaStreamProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/processor/KafkaStreamProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/service/DomainCrawlerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/service/DomainCrawlerService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +41,6 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="mavenHome" value="Use Maven wrapper" />
         <option name="useMavenConfig" value="true" />
       </MavenGeneralSettings>
     </option>
@@ -50,10 +59,12 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "last_opened_file_path": "/Users/jianzhang/kafka/github/spring-boot-kafka-json-stream",
     "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2"
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -70,12 +81,17 @@
   <component name="RunManager">
     <configuration name="ConfigKafkaJsonStreamApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.config.kafka.json.stream.ConfigKafkaJsonStreamApplication" />
-      <module name="config-kafka-json-stream" />
+      <module name="spring-boot-kafka-json-stream" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.config.kafka.json.stream.*" />
           <option name="ENABLED" value="true" />
         </pattern>
+      </extension>
+      <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+        <option name="credential" />
+        <option name="region" />
+        <option name="useCurrentConnection" value="false" />
       </extension>
       <method v="2">
         <option name="Make" enabled="true" />

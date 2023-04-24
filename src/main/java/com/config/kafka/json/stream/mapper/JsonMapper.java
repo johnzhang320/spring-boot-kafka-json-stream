@@ -37,4 +37,17 @@ public class JsonMapper {
 			throw new MappingException(e);
 		}
 	}
+
+	public static String writeJsonToPretty (String json)    {
+		try {
+			return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+		} catch (Exception e) {
+			throw new MappingException(e);
+		}
+	}
+	public static String writeObjectToPrettyJson (Object obj)  {
+		String json = writeToJson(obj);
+		return writeJsonToPretty (json);
+
+	}
 }
