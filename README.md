@@ -318,20 +318,25 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
            }
           }
  ### KStream Processor
-      @Bean
-      public KStream<String, Domain> kStream(StreamsBuilder builder) {
-          KStream<String, Domain> kstream = builder.stream(Constants.WEB_DOMAIN, Consumed.with(STRING_SERDE, DomainSerdes.serdes()))
-                  .mapValues((domain)->{
-                      domain.setDead(randData());
-                      return domain;
-                  }).peek((key,domain)->log.info("Received Domain with key="+key+", domain="+domain));
-          KStream<String, Domain> active_domains= kstream.filter((key,domain)->domain.isDead());
-          KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
-          active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
-          inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
-          return null;
-      }
-   
+     We used mapValues to fetch domain as value, use selectKey take domain name (domain.getDomain()) + dead status as a key
+     
+     transform result will be show by peek and Log4j , then save active domain topic and inactive domain topic
+     
+       @Bean
+       public KStream<String, Domain> kStream(StreamsBuilder builder) {
+              KStream<String, Domain> kstream = builder.stream(Constants.WEB_DOMAIN,
+                           Consumed.with(STRING_SERDE, DomainSerdes.serdes()))
+                           .mapValues((domain)->{
+                                 return domain;
+                            }).selectKey((key,value)-> value.getDomain()+(value.isDead() ? "(inactive domain)":"(active domain)"))
+                           .peek((key,domain)->log.info("Received Domain with key=" +key+" value="+ domain));
+
+              KStream<String, Domain> active_domains= kstream.filter((key,domain)->!domain.isDead());
+              KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
+              active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
+              inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
+              return kstream;
+       }
 #### Test Result demo and analysis  
  
    Postman issue get url to search google domain names, all domain is alive (dead=false)
@@ -351,7 +356,15 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
    Kstream processor consumed the domain list and directed the alive domain to active.web-domain topic and dumped the inactive domain to 
    inactive.web-domain topic
    
-   <img src="images/dead-domain-save-to-inactive-topic.png" width="90%" height="90%">
+   <img src="alive-domains-dead-domain-topics-result" width="90%" height="90%">
+   
+   kstream processor transform peek result (received domain with key and value) and produce the domains
+   
+   <img src="images/received-dead-alive-select-key.png" width="90%" height="90%">
+   
+   consumer listened the produce and use ConsumerRecord<String, Domain> record) to receive domains
+   
+   <img src="images/stream-consumer-listeners.png" width="90%" height="90%">
    
 ## Conclusion
   
