@@ -356,7 +356,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
    Kstream processor consumed the domain list and directed the alive domain to active.web-domain topic and dumped the inactive domain to 
    inactive.web-domain topic
    
-   <img src="images/alive-domains-dead-domain-topics-result" width="90%" height="90%">
+   <img src="images/alive-domains-dead-domain-topics-result.png" width="90%" height="90%">
    
    kstream processor transform peek result (received domain with key and value) and produce the domains
    
