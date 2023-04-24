@@ -38,11 +38,13 @@ public class KafkaStreamProcessor {
                         Consumed.with(STRING_SERDE, DomainSerdes.serdes()))
                         .mapValues((domain)->{
                               return domain;
-                         }).peek((key,domain)->log.info("Received Domain with domain="+ domain));
-          KStream<String, Domain> active_domains= kstream.filter((key,domain)->domain.isDead());
-          KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
-          active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
-          inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
-          return kstream;
+                         }).selectKey((key,value)-> value.getDomain()+(value.isDead() ? "(inactive domain)":"(active domain)"))
+                        .peek((key,domain)->log.info("Received Domain with key=" +key+" value="+ domain));
+
+           KStream<String, Domain> active_domains= kstream.filter((key,domain)->!domain.isDead());
+           KStream<String, Domain> inactive_domains= kstream.filter((key,domain)->domain.isDead());
+           active_domains.to(Constants.ACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
+           inactive_domains.to(Constants.INACTIVE_WEB_DOMAIN, Produced.with(STRING_SERDE,DomainSerdes.serdes()));
+           return kstream;
     }
 }

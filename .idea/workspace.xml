@@ -5,17 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e6d2930-801a-434b-87d0-4097cd684320" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/control/DomainCrawlerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/control/DomainCrawlerController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/mapper/JsonMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/mapper/JsonMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/Received-dead-and-alive-domain.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/model/Subdomain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/model/Subdomain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/processor/KafkaStreamProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/processor/KafkaStreamProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/service/DomainCrawlerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/service/DomainCrawlerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/serdes/JsonSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/config/kafka/json/stream/serdes/JsonSerializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/model/Subdomain$SubdomainBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/model/Subdomain$SubdomainBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/model/Subdomain.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/model/Subdomain.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/processor/KafkaStreamProcessor.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/processor/KafkaStreamProcessor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/serdes/JsonSerializer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/config/kafka/json/stream/serdes/JsonSerializer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

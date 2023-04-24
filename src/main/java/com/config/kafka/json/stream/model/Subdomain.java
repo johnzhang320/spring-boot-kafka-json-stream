@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Subdomain {
     private String domain;
-    private boolean active;
     private String category;
 }

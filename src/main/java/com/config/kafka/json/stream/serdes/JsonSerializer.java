@@ -21,7 +21,6 @@ public class JsonSerializer<T> implements Serializer<T> {
     public byte[] serialize(String topic, T data) {
         if (data == null)
             return null;
-
         try {
             //  JsonMapper.writeToJson(data) write java object to java String and then getBytes convert string to
             //  java bytes (UTF_8) stream
