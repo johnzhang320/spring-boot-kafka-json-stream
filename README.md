@@ -38,47 +38,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
      spring-kafka
      kafka-streams
      spring-boot-starter-webflux
-###  dependency in pom.xml as following     
-          ....
-        
-        <dependencies>
-         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-web</artifactId>
-         </dependency>
-         <dependency>
-          <groupId>org.springframework.kafka</groupId>
-          <artifactId>spring-kafka</artifactId>
-          <version>2.8.11</version>
-         </dependency>
-         <dependency>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka-streams</artifactId>
-         </dependency>
-         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-webflux</artifactId>
-         </dependency>
-        
-         <dependency>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka-clients</artifactId>
-          <version>3.1.2</version>
-         </dependency>
-        
-         <dependency>
-          <groupId>org.projectlombok</groupId>
-          <artifactId>lombok</artifactId>
-          <optional>true</optional>
-         </dependency>
-         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-test</artifactId>
-          <scope>test</scope>
-         </dependency>
-        </dependencies>
-       .....
-
+ 
 
 ## Data Model
 ### Domain class
@@ -111,6 +71,20 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
          private boolean active;
          private String category;
      }
+ ### crawler domains Rest API
+ 
+      @RestController
+      @RequestMapping("/domain")
+      public class DomainCrawlerController {
+          @Autowired
+          private DomainCrawlerService domainCrawlerService;
+          @GetMapping("/lookup/{name}")
+          public Mono<DomainList> lookup(@PathVariable("name") String name) {
+              Mono<DomainList> domains= domainCrawlerService.crawl(name);
+              // show the crawler result
+              return domains;
+          }
+      }     
 ### Domains Crawler Service
    We use Spring Webflux client to access https://api.domainsdb.info/v1/domains/search?domain=companyname (note this website may be temporaryly
    unavailable return 503 error code), in order to increase the POJO Domain object
@@ -184,9 +158,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
        always running, reversely, consume data extremely slow even stopped because tranform code starved (no chance to run)
     
      3. eliminate data cache by props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
-     
-     
-     
+       
        @Configuration
        @EnableKafkaStreams
        @EnableKafka
@@ -209,29 +181,142 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
           props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class.getName());
           return new KafkaStreamsConfiguration(props);
       }
- ### crawler domains Rest API
- 
-      @RestController
-      @RequestMapping("/domain")
-      public class DomainCrawlerController {
-          @Autowired
-          private DomainCrawlerService domainCrawlerService;
-          @GetMapping("/lookup/{name}")
-          public Mono<DomainList> lookup(@PathVariable("name") String name) {
-              Mono<DomainList> domains= domainCrawlerService.crawl(name);
-              // show the crawler result
-              return domains;
-          }
-      }
+
  ### Custom DomainSerdes using customed JsonSerializer and JsonDeserializer 
     Class Diagram as below:
     
  
- <img src="images/custom_serializer_deserializer_class_diagram.png" width=130% height=130%>
+ <img src="images/custom_serializer_deserializer_class_diagram.png" width=130% height=130%> 
  
   Above diagram shows how DmainSerdes class applied customed JsonSerializer and JsonDeserializer, those two classes applied JsonMapper reader 
-  and writer, which writes java pojo to Json String/bytes and reads Json String/bytes to Java pojo no matter how complicated pojo is
   
+  and writer, which writes java pojo to Json String/bytes and reads Json String/bytes to Java pojo no matter how complicated pojo is
+ 
+ DomainSerdes Class will be used in kstream processor  
+ 
+        public final class DomainSerdes extends Serdes.WrapperSerde<Domain> {
+
+           public DomainSerdes() {
+               // customize com.config.kafka.json.stream.serdes.JsonSerializer and Jcom.config.kafka.json.stream.serdes.JsonDeserializer
+               super(new JsonSerializer<>(), new JsonDeserializer<>(Domain.class));
+           }
+           // usage DomainSerdes.serdes()
+           public static Serde<Domain> serdes() {
+               JsonSerializer<Domain> serializer = new JsonSerializer<>();
+               JsonDeserializer<Domain> deserializer = new JsonDeserializer<>(Domain.class);
+               return Serdes.serdeFrom(serializer, deserializer);
+           }
+       }
+ Customed JsonSerializer ensure Json Object (generic T) to be writed to String and convert to bytes for stream producer
+ Here JsonMapper.writeToJson is wrapping the com.fasterxml.jackson.databind.ObjectMapper.writeValueAsString
+ 
+      public class JsonSerializer<T> implements Serializer<T> {
+
+          public JsonSerializer() {
+          }
+          @Override
+          public void configure(Map<String, ?> props, boolean isKey) {
+          }
+          // serialize Java Object to java Bytes String
+          @Override
+          public byte[] serialize(String topic, T data) {
+              if (data == null)
+                  return null;
+              try {
+                  //  JsonMapper.writeToJson(data) write java object to java String and then getBytes convert string to
+                  //  java bytes (UTF_8) stream
+                  return JsonMapper.writeToJson(data).getBytes(StandardCharsets.UTF_8);
+              } catch (Exception e) {
+                  throw new SerializationException("Error serializing JSON message", e);
+              }
+          }
+          @Override
+          public void close() {
+          }
+      }
+ Customed JsonDeserializer ensure Json String byte stream to be convert to Object for consumer listen directly get object (here is Domain)
+ here JsonMapper.readFromJson is wrapping the com.fasterxml.jackson.databind.ObjectMapper.readVlue
+ 
+      public class JsonDeserializer<T> implements Deserializer<T> {
+
+          private Class<T> destinationClass;
+
+          public JsonDeserializer(Class<T> destinationClass) {
+              this.destinationClass = destinationClass;
+          }
+
+          @Override
+          public void configure(Map<String, ?> props, boolean isKey) {
+          }
+          // Deserialize byte[] to an objects
+          @Override
+          public T deserialize(String topic, byte[] bytes) {
+              if (bytes == null)
+                  return null;
+              try {
+                  // convert bytes to UTF_8 String and then JsonMapper.readFromJson convert string to Java Object
+                  return JsonMapper.readFromJson(new String(bytes, StandardCharsets.UTF_8), destinationClass);
+              } catch (Exception e) {
+                  throw new SerializationException("Error deserializing message", e);
+              }
+          }
+
+          @Override
+          public void close() {
+          }
+      }
+      
+  Underneath code is customed JsonMapper which wrapped com.fasterxml.jackson.databind.ObjectMapper.readVlue and 
+  
+  com.fasterxml.jackson.databind.ObjectMapper.writeValueAsString , points is we configure objectMapper 
+ 
+          public class JsonMapper {
+
+           private static final ObjectMapper objectMapper = new ObjectMapper();
+
+           static {
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+            objectMapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
+            objectMapper.findAndRegisterModules();
+           }
+
+           /**
+            * Map the given JSON String to the required class type.
+            */
+           public static <T> T readFromJson(String json, Class<T> clazz) throws MappingException {
+            try {
+             return objectMapper.readValue(json, clazz);
+            } catch (Exception e) {
+             throw new MappingException(e);
+            }
+           }
+
+           /**
+            * Map the given Object to a JSON String.
+            */
+           public static String writeToJson(Object obj) throws MappingException {
+            try {
+             return objectMapper.writeValueAsString(obj);
+            } catch (Exception e) {
+             throw new MappingException(e);
+            }
+           }
+
+           public static String writeJsonToPretty (String json)    {
+            try {
+             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+            } catch (Exception e) {
+             throw new MappingException(e);
+            }
+           }
+           public static String writeObjectToPrettyJson (Object obj)  {
+            String json = writeToJson(obj);
+            return writeJsonToPretty (json);
+
+           }
+          }
  ### KStream Processor
       @Bean
       public KStream<String, Domain> kStream(StreamsBuilder builder) {
@@ -247,21 +332,29 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
           return null;
       }
    
- #### Test Result demo and analysis  
+#### Test Result demo and analysis  
  
-     Postman issue get url to search google domain names, all domain is alive (dead=false)
-     
-     http://localhost:8099/domain/lookup/google     
-     
-     <img src="images/postman-call-crawler-api-google-result.png" width="90%" height="90%">
-     
-     Before producer send the domain list to kstream processor consumer
-     
-     To verify customed Serdes for JsonSerializer and JsonDeserializer, add 3 subdomains as arraylist to each domain
-     
-     In order to verify if kstram processor differentiate ability, mock some domains are alive and some domains are dead
-     
-     <img src="images/webflux-client-mock-some-domain-dead.png" width="90%" height="90%">
+   Postman issue get url to search google domain names, all domain is alive (dead=false)
+
+   http://localhost:8099/domain/lookup/google     
+
+   <img src="images/postman-call-crawler-api-google-result.png" width="90%" height="90%">
+
+   Before producer send the domain list to kstream processor consumer
+
+   To verify customed Serdes for JsonSerializer and JsonDeserializer, add 3 subdomains as arraylist to each domain
+
+   In order to verify if kstram processor differentiate ability, mock some domains are alive and some domains are dead
+
+   <img src="images/webflux-client-mock-some-domain-dead.png" width="90%" height="90%">
+   
+   Kstream processor consumed the domain list and directed the alive domain to active.web-domain topic and dumped the inactive domain to 
+   inactive.web-domain topic
+   
+   <img src="images/dead-domain-save-to-inactive-topic.png" width="90%" height="90%">
+   
+## Conclusion
+  Spring boot Kafka JSON stream key points are create 
      
      
      
