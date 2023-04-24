@@ -374,7 +374,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
   
   Another point is correctly using the serdes in kstream builder consumer and stream.to producer, the new topic stream consumer directly listen 
   
- and take (ConsumerRecord<String, Domain> record) as listener function arguments
+  and take (ConsumerRecord<String, Domain> record) as listener function arguments
   
      
      
