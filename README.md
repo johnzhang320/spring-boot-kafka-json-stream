@@ -115,51 +115,59 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
    We use Spring Webflux client to access https://api.domainsdb.info/v1/domains/search?domain=companyname (note this website may be temporaryly
    unavailable return 503 error code), in order to increase the POJO Domain object
    one to many structure we add simulated data to SubDomain list 
-         @Service
-         @Slf4j
-         public class DomainCrawlerService {
-             @Autowired
-             private KafkaTemplate<String, Domain> kafkaTemplate;
+      
+        @Service
+        @Slf4j
+        public class DomainCrawlerService {
 
-             public List<Domain> crawl(String name) {
-                 Mono<DomainList> domainListMono = WebClient.create()
-                         .get()
-                         .uri("https://api.domainsdb.info/v1/domains/search?domain="+name+"&zone=com")
-                         .accept(MediaType.APPLICATION_JSON)
-                         .retrieve()
-                         .bodyToMono(DomainList.class);
-                 int i=0;
-                 List<Domain> list = new ArrayList<>();
-                 domainListMono.subscribe(domainList->{
-                     domainList.getDomains().forEach(domain->{
-                         List<Subdomain> subdomains = new ArrayList<>();
-                         //test structure json object consumer
-                         Subdomain subdomain1 = Subdomain.builder()
-                                 .domain("sub-hobby.com")
-                                 .active(false)
-                                 .category("entertainment")
-                                 .build();
-                         subdomains.add(subdomain1);
-                         Subdomain subdomain2 = Subdomain.builder()
-                                 .domain("sub-music.com")
-                                 .active(true)
-                                 .category("entertainment")
-                                 .build();
-                         subdomains.add(subdomain2);
-                         Subdomain subdomain3 = Subdomain.builder()
-                                 .domain("sub-football.com")
-                                 .active(true)
-                                 .category("sports")
-                                 .build();
-                         subdomains.add(subdomain3);
-                         domain.setSub_domain_list(subdomains);
-                         list.add(domain);
-                         kafkaTemplate.send(Constants.WEB_DOMAIN, domain);
-                         log.info("Sending Domain is :"+domain.getDomain());
-                     });
-                  });
-                  return list;
-              }
+            @Autowired
+            private KafkaTemplate<String, Domain> kafkaTemplate;
+            static List<Domain> list = new ArrayList<>();
+            public Mono<DomainList> crawl(String name) {
+
+                Mono<DomainList>  domainListMono =
+                   WebClient.create()
+                        .get()
+                        .uri("https://api.domainsdb.info/v1/domains/search?domain="+name+"&zone=com")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .retrieve()
+                        .bodyToMono(DomainList.class);
+
+
+                  int i=0;
+                /**
+                 *  mock dead field randomly to verify if processor can verify alive or inactive domain
+                 */
+                domainListMono.subscribe(domainList->{
+                    domainList.getDomains().forEach(domain->{
+                        List<Subdomain> subdomains = new ArrayList<>();
+                        //test structure json object consumer
+                        Subdomain subdomain1 = Subdomain.builder()
+                                .domain("sub-hobby.com")
+                                .category("entertainment")
+                                .build();
+                        subdomains.add(subdomain1);
+                        Subdomain subdomain2 = Subdomain.builder()
+                                .domain("sub-music.com")
+                                .category("entertainment")
+                                .build();
+                        subdomains.add(subdomain2);
+                        Subdomain subdomain3 = Subdomain.builder()
+                                .domain("sub-football.com")
+                                .category("sports")
+                                .build();
+                        subdomains.add(subdomain3);
+                        domain.setSub_domain_list(subdomains);
+                        boolean alive=Math.abs((new Random()).nextInt() % 2) ==1 ? true: false;
+                        domain.setDead(alive);
+                        kafkaTemplate.send(Constants.WEB_DOMAIN, domain);
+                        log.info("Sending Domain is :"+domain);
+                    });
+                });
+
+                return domainListMono;
+            }
+        }
    
    
 ### Configure JSON Stream Objects producer and consumer are similar to my another repository 
@@ -201,7 +209,20 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
           props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class.getName());
           return new KafkaStreamsConfiguration(props);
       }
-
+ ### crawler domains Rest API
+ 
+      @RestController
+      @RequestMapping("/domain")
+      public class DomainCrawlerController {
+          @Autowired
+          private DomainCrawlerService domainCrawlerService;
+          @GetMapping("/lookup/{name}")
+          public Mono<DomainList> lookup(@PathVariable("name") String name) {
+              Mono<DomainList> domains= domainCrawlerService.crawl(name);
+              // show the crawler result
+              return domains;
+          }
+      }
  ### Custom DomainSerdes using customed JsonSerializer and JsonDeserializer 
     Class Diagram as below:
     
@@ -227,3 +248,21 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
       }
    
  #### Test Result demo and analysis  
+ 
+     Postman issue get url to search google domain names, all domain is alive (dead=false)
+     
+     http://localhost:8099/domain/lookup/google     
+     
+     <img src="images/postman-call-crawler-api-google-result.png" width="90%" height="90%">
+     
+     Before producer send the domain list to kstream processor consumer
+     
+     To verify customed Serdes for JsonSerializer and JsonDeserializer, add 3 subdomains as arraylist to each domain
+     
+     In order to verify if kstram processor differentiate ability, mock some domains are alive and some domains are dead
+     
+     <img src="images/webflux-client-mock-some-domain-dead.png" width="90%" height="90%">
+     
+     
+     
+    
