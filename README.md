@@ -354,7 +354,13 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
    <img src="images/dead-domain-save-to-inactive-topic.png" width="90%" height="90%">
    
 ## Conclusion
-  Spring boot Kafka JSON stream key points are create 
+  
+  Spring boot Kafka JSON stream key points are creating DomainSerdes using generic customied JsonSerializer and JsonDeserializer. we try many time
+  
+  make the json object can be serialized or deserialized working correctly for kstream processor. Another point is correctly using the serdes in 
+  
+  kstream processor
+  
      
      
      
