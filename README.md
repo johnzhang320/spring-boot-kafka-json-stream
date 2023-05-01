@@ -32,7 +32,7 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
 ### All topics will be automatically created by java code   
    we can use shell script in directory kafka_start_stop to show topic, producer and consumer status content 
 
-## Running Evirnomenet
+## Running Evirnoment
      JDK17
      Spring boot 2.7.10
      spring-kafka
