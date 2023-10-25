@@ -12,8 +12,9 @@
 
  
 <img src="images/workflow.png" width="80%" height="80%">
-Domain crawler code gathers company domains into domain pojo objects from web and saving to domain topic and stream consumer listens domain POJO,
-check isDead() methond in domain pojo, if domain is still alive, save in active domain topic , if dead, dump to inactive domain topic
+Domain crawler code gathers company domains into domain pojo objects from web and saving 
+to domain topic and stream consumer listens domain POJO, check isDead() methond in domain pojo,
+if domain is still alive, save in active domain topic , if dead, dump to inactive domain topic
 
    
 ## Start Zookeeper and Kafka
@@ -150,12 +151,14 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
 
 ### Here I need to explain Stream Configure
      1.Kafka Stream Configuration
-       kstream process seems to accept KStream<String, Domain> kStream(StreamsBuilder builder), I try to use other 
-       function name other than 'kStream' and not use 'defaultKafkaStreamsConfig' as name of KafkaStreamsConfiguration bean, spring boot failed
+       kstream process seems to accept KStream<String, Domain> kStream(StreamsBuilder builder), 
+       I try to use other function name other than 'kStream' and not use 'defaultKafkaStreamsConfig' 
+       as name of KafkaStreamsConfiguration bean, spring boot failed
        Therefore, I keep the configuration Bean name as defaultKafkaStreamsConfig
        
-     2.Setup Kafka Stream Sampling Timing Window by StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000), I tested, if take away this, stream process
-       always running, reversely, consume data extremely slow even stopped because tranform code starved (no chance to run)
+     2.Setup Kafka Stream Sampling Timing Window by StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000), 
+     I tested, if take away this, stream processalways running, reversely, consume data extremely slow 
+     even stopped because tranform code starved (no chance to run)
     
      3. eliminate data cache by props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
        
@@ -178,7 +181,8 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
           props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
           // For illustrative purposes we disable record caches.
           props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
-          props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class.getName());
+          props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, 
+                               WallclockTimestampExtractor.class.getName());
           return new KafkaStreamsConfiguration(props);
       }
 
@@ -188,16 +192,19 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
  
  <img src="images/custom_serializer_deserializer_class_diagram.png" width=130% height=130%> 
  
-  Above diagram shows how DmainSerdes class applied customed JsonSerializer and JsonDeserializer, those two classes applied JsonMapper reader 
+  Above diagram shows how DmainSerdes class applied customed JsonSerializer and JsonDeserializer, 
+  those two classes applied JsonMapper reader 
   
-  and writer, which writes java pojo to Json String/bytes and reads Json String/bytes to Java pojo no matter how complicated pojo is
+  and writer, which writes java pojo to Json String/bytes and reads Json String/bytes to Java 
+  pojo no matter how complicated pojo is
  
  DomainSerdes Class will be used in kstream processor  
  
         public final class DomainSerdes extends Serdes.WrapperSerde<Domain> {
 
            public DomainSerdes() {
-               // customize com.config.kafka.json.stream.serdes.JsonSerializer and Jcom.config.kafka.json.stream.serdes.JsonDeserializer
+               // customize com.config.kafka.json.stream.serdes.JsonSerializer and 
+               Jcom.config.kafka.json.stream.serdes.JsonDeserializer
                super(new JsonSerializer<>(), new JsonDeserializer<>(Domain.class));
            }
            // usage DomainSerdes.serdes()
@@ -207,7 +214,8 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
                return Serdes.serdeFrom(serializer, deserializer);
            }
        }
- Customed JsonSerializer ensure Json Object (generic T) to be writed to String and convert to bytes for stream producer
+ Customed JsonSerializer ensure Json Object (generic T) to be writed to String and convert 
+ to bytes for stream producer
  Here JsonMapper.writeToJson is wrapping the com.fasterxml.jackson.databind.ObjectMapper.writeValueAsString
  
       public class JsonSerializer<T> implements Serializer<T> {
@@ -234,8 +242,9 @@ check isDead() methond in domain pojo, if domain is still alive, save in active 
           public void close() {
           }
       }
- Customed JsonDeserializer ensure Json String byte stream to be convert to Object for consumer listen directly get object (here is Domain)
- here JsonMapper.readFromJson is wrapping the com.fasterxml.jackson.databind.ObjectMapper.readVlue
+ Customed JsonDeserializer ensure Json String byte stream to be convert to Object for consumer 
+ listen directly get object (here is Domain) here JsonMapper.readFromJson is wrapping the 
+ com.fasterxml.jackson.databind.ObjectMapper.readVlue
  
       public class JsonDeserializer<T> implements Deserializer<T> {
 
